@@ -29,7 +29,7 @@
         const ctx = canvas.getContext('2d');
 
         // Game variables
-        const gravity = 0.5;
+        const gravity = 0.8;
         let isJumping = false;
         let jumpPower = 15;
         let velocityY = 0;
@@ -42,6 +42,16 @@
             color: 'red',
         };
 
+        // Platform variables
+        const groundHeight = 50;
+        const platform = {
+            x: 0,
+            y: canvas.height - groundHeight,
+            width: canvas.width,
+            height: groundHeight,
+            color: '#6c4f3d',
+        };
+
         // Keyboard controls
         const keys = {
             right: false,
@@ -52,6 +62,7 @@
         // Game loop
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlatform();
             movePlayer();
             updatePlayerPosition();
             drawPlayer();
@@ -67,11 +78,11 @@
             velocityY += gravity; // Apply gravity
             player.y += velocityY;
 
-            // Prevent player from going below the ground
-            if (player.y > canvas.height - player.height) {
-                player.y = canvas.height - player.height;
-                velocityY = 0;
-                isJumping = false;
+            // Collision detection with the ground (platform)
+            if (player.y + player.height > platform.y) {
+                player.y = platform.y - player.height; // Place player on top of the ground
+                velocityY = 0; // Stop falling
+                isJumping = false; // Reset jumping state
             }
         }
 
@@ -85,6 +96,12 @@
         function drawPlayer() {
             ctx.fillStyle = player.color;
             ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        // Drawing the ground platform
+        function drawPlatform() {
+            ctx.fillStyle = platform.color;
+            ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
         }
 
         // Handle keydown event
@@ -106,4 +123,3 @@
     </script>
 </body>
 </html>
-

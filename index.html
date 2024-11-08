@@ -34,12 +34,12 @@
         let jumpPower = 15;
         let velocityY = 0;
         let player = {
-            x: 50,
-            y: canvas.height - 150,
+            x: 50, // Initial position of the player
+            y: canvas.height - 150, // Initial Y position (near the bottom of the canvas)
             width: 50,
             height: 50,
             speed: 5,
-            color: 'red',
+            color: 'blue', // Make the player color more visible (blue)
             dx: 0,
         };
 
@@ -62,28 +62,28 @@
 
         // Game loop
         function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawPlatform();
-            movePlayer();
-            updatePlayerPosition();
-            drawPlayer();
-            requestAnimationFrame(gameLoop);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas for the next frame
+            drawPlatform();  // Draw the ground platform
+            movePlayer();  // Update the player's movement
+            updatePlayerPosition();  // Apply gravity and check for collisions
+            drawPlayer();  // Draw the player on the canvas
+            requestAnimationFrame(gameLoop);  // Request the next frame
         }
 
         // Player movement
         function movePlayer() {
             if (keys.right) player.x += player.speed;
             if (keys.left) player.x -= player.speed;
-            if (keys.up && !isJumping) jump();
+            if (keys.up && !isJumping) jump();  // Only jump if the player is not already jumping
 
-            velocityY += gravity; // Apply gravity
-            player.y += velocityY;
+            velocityY += gravity; // Apply gravity to the player's velocity
+            player.y += velocityY;  // Update the player's vertical position
 
             // Collision detection with the ground (platform)
             if (player.y + player.height > platform.y) {
-                player.y = platform.y - player.height; // Place player on top of the ground
-                velocityY = 0; // Stop falling
-                isJumping = false; // Reset jumping state
+                player.y = platform.y - player.height;  // Place player on top of the ground
+                velocityY = 0;  // Stop vertical velocity (no more falling)
+                isJumping = false;  // Player is no longer jumping
             }
 
             // Prevent the player from going off the screen horizontally
@@ -94,10 +94,10 @@
         // Jump function
         function jump() {
             isJumping = true;
-            velocityY = -jumpPower;
+            velocityY = -jumpPower;  // Apply upward force
         }
 
-        // Drawing the player
+        // Drawing the player (with updated color for better visibility)
         function drawPlayer() {
             ctx.fillStyle = player.color;
             ctx.fillRect(player.x, player.y, player.width, player.height);
@@ -109,14 +109,14 @@
             ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
         }
 
-        // Handle keydown event
+        // Handle keydown event (start moving when key is pressed)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') keys.right = true;
             if (e.key === 'ArrowLeft') keys.left = true;
             if (e.key === 'ArrowUp') keys.up = true;
         });
 
-        // Handle keyup event
+        // Handle keyup event (stop moving when key is released)
         document.addEventListener('keyup', (e) => {
             if (e.key === 'ArrowRight') keys.right = false;
             if (e.key === 'ArrowLeft') keys.left = false;

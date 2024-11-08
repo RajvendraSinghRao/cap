@@ -40,6 +40,7 @@
             height: 50,
             speed: 5,
             color: 'red',
+            dx: 0,
         };
 
         // Platform variables
@@ -84,6 +85,10 @@
                 velocityY = 0; // Stop falling
                 isJumping = false; // Reset jumping state
             }
+
+            // Prevent the player from going off the screen horizontally
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
         }
 
         // Jump function
